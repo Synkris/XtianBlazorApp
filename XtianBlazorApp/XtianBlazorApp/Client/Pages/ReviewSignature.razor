@@ -1,0 +1,29 @@
+﻿@inject IJSRuntime JsRuntime
+@inject NavigationManager NavManager
+@inject XtianBlazorApp.Shared.ViewModels.StateContainer StateContainer
+
+@page "/ReviewSignature"
+<PageTitle>Review</PageTitle>
+<EditForm Model="StateContainer.SignatureApproved">
+    <div class="row">
+        <div class="col-sm-12 col-md-6">
+            <h1>Agreement</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6 col-md-3">
+            <label>Signed:</label><br />
+            <img src="@StateContainer.SignatureApproved.Signature">
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <label>Dated:</label>
+            <InputDate @bind-Value="StateContainer.SignatureApproved.SignatureDate" class="form-control disabled" />
+        </div>
+    </div>
+</EditForm>
+
+
+@code
+{
+
+}

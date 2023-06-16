@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33627.172
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XtianBlazorApp.Server", "XtianBlazorApp\Server\XtianBlazorApp.Server.csproj", "{2F8C2E46-6961-4F7A-B4C4-78E08DC05ADF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XtianBlazorApp.Server", "XtianBlazorApp\Server\XtianBlazorApp.Server.csproj", "{2F8C2E46-6961-4F7A-B4C4-78E08DC05ADF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XtianBlazorApp.Client", "XtianBlazorApp\Client\XtianBlazorApp.Client.csproj", "{D194E78B-61BD-49A6-8698-5C1B72DA7DDF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XtianBlazorApp.Client", "XtianBlazorApp\Client\XtianBlazorApp.Client.csproj", "{D194E78B-61BD-49A6-8698-5C1B72DA7DDF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XtianBlazorApp.Shared", "XtianBlazorApp\Shared\XtianBlazorApp.Shared.csproj", "{D711467F-F959-4ECA-A233-29970428AAA6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XtianBlazorApp.Shared", "XtianBlazorApp\Shared\XtianBlazorApp.Shared.csproj", "{D711467F-F959-4ECA-A233-29970428AAA6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
