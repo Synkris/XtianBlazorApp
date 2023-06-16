@@ -1,0 +1,10 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/XtianBlazorApp/XtianBlazorApp/Client/bin/Debug/net6.0
+/XtianBlazorApp/XtianBlazorApp/Client/obj
+/XtianBlazorApp/XtianBlazorApp/Server/bin/Debug/net6.0
+/XtianBlazorApp/XtianBlazorApp/Server/obj
+/XtianBlazorApp/XtianBlazorApp/Shared/bin/Debug/net6.0
+/XtianBlazorApp/XtianBlazorApp/Shared/obj
