@@ -1,0 +1,30 @@
+﻿@page "/scanner"
+@using BlazorBarcodeScanner.ZXing.JS
+
+
+
+<PageTitle>Scanner</PageTitle>
+<h1>Scanner</h1>
+
+<p role="status">Scanned Json Result Below: @LocalBarcodeText</p>
+
+<BlazorBarcodeScanner.ZXing.JS.BarcodeReader Title="Scan Barcode from Camera"
+                                             StartCameraAutomatically="false"
+                                             ShowStart="true"
+                                             ShowReset="true"
+                                             ShowToggleTorch="true"
+                                             ShowVideoDeviceList="true"
+                                             VideoWidth="300"
+                                             VideoHeight="200" />
+
+
+@code 
+{
+    private string LocalBarcodeText = string.Empty;
+
+    private void LocalReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        this.LocalBarcodeText = args.BarcodeText;
+        StateHasChanged();
+    }
+}
