@@ -1,0 +1,176 @@
+﻿
+
+.shape-text
+{
+    font-size: 20px;
+}
+
+.oval-shape 
+{
+    width: 140px;
+     height: 70px;
+     background-color: #0084ff;
+     border-radius: 50%;
+     display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.oval-shape1 
+{
+    width: 140px;
+     height: 70px;
+     background-color: #ffcc00;
+     border-radius: 50%;
+     display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.oval-shape2 
+{
+    width: 140px;
+     height: 70px;
+     background-color: #ff6666;
+     border-radius: 50%;
+     display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+
+.curved-rectangle
+{
+    width: 220px;
+     height: 80px;
+     background-color: #0084ff;
+     border-radius: 20px;
+     display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.curved-rectangle1 
+{
+     width: 220px;
+     height: 80px;
+     background-color: #ffcc00;
+     border-radius: 20px;   
+}
+
+.curved-rectangle2
+{
+    width: 220px;
+     height: 80px;
+     background-color: #ff6666;
+     border-radius: 20px;   
+}
+
+.icon-margin3
+{
+    margin-right: 7px;
+}
+.icon-margin2
+{
+    margin-right: 6px;
+}
+
+.card-sm 
+{
+    height: 225px;
+    margin-bottom: 50px;
+}
+
+.margin-bottom 
+{
+    margin-bottom: 50px;
+}
+
+.yellowMarginBottom 
+{
+    margin-top: 97px;
+}
+
+.text-color-design 
+{
+    color: black;
+    font-weight: bolder;
+}
+
+
+.circle 
+{
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid white;
+}
+
+.circle-down {
+    width: 60px;
+    height: 71px;
+    border-radius: 50%;
+    background-color: #f8f9fa;
+    position: absolute;
+    bottom: -48px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid white;
+}
+
+.blue {
+    background-color: #0084ff;
+}
+
+.yellow {
+    background-color: #ffcc00;
+}
+
+.red {
+    background-color: #ff6666;
+}
+
+.green {
+    background-color: #0080008f;
+}
+.zxing-button.stop {
+    display: none;
+}
+.zxing-button.start {
+    display: none;
+}
+
+.whiteWord 
+{
+    color: white;
+}
+.cardBody{
+    min-height:200px !important;
+}
+
+.notificationSpace
+{
+    margin-top: 5rem !important;
+}
+
+.blueNotificationSpace 
+{
+    margin-top: 2.5rem !important;
+}
+.detainCheckLabel {
+    margin-left: -60px!important;
+}

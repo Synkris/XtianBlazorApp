@@ -16,6 +16,7 @@ namespace XtianBlazorApp.Shared.ViewModels
         public string SignatureType { get; set; }
         public string Base64Image { get; set; }
         public string AgePreference { get; set; }
+        public string ImageData { get; set; } = string.Empty;
         public bool ConsentUnder16DPMedicalExam { get; set; }
         public bool ConsentUnder16DPForensicSampling { get; set; }
         public bool ConsentUnder16BodyDiagram { get; set; }
