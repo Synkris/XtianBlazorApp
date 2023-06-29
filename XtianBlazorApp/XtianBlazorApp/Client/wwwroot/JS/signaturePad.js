@@ -1,6 +1,5 @@
 ﻿
 function setSignature(element) {
-    debugger;
     var canvas = document.getElementById(element.id)
     var signaturePad = new SignaturePad(canvas, {
         backgroundColor: 'rgba(255, 255, 255, 255)',
