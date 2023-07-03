@@ -1,9 +1,65 @@
 ﻿@page "/"
 
-<PageTitle>Index</PageTitle>
+  <style>
+    
+    .mainCard 
+    {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-<h1>Hello, world!</h1>
+    .card-img-top
+    {
+        object-fit: contain;
+        margin-bottom: 25px;
+    }
 
-Welcome to your new app.
+    .card-title
+    {
+        font-family: fantasy;
+    }
+    
+  </style>
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+   <div class="imgWrapper">
+    <img src="neon-logo-logo-google.jpg" width="100" height="200" class="card-img-top" alt="Logo" />
+  </div>
+
+  <div class="card mainCard shadow-lg">
+        
+    <div class="card-body">
+      <h5 class="card-title text-center">Scanning and Uploading Steps</h5>
+      <ol class="card-text">
+        <li>
+          <strong>Scan the Base URL Barcode & Person's QR Code Details:</strong>
+          <ul>
+            <li>Position the base URL barcode and the Person's QR code within the scanner's viewfinder.</li>
+            <li>Ensure the scanner focuses on each code and captures them accurately.</li>
+            <li>Allow the scanner to decode the information embedded in both codes.</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Mark Necessary Checkbox and Sign at Specified Area:</strong>
+          <ul>
+            <li>Locate the necessary checkboxes that require marking.</li>
+            <li>Check the appropriate boxes according to the relevant information or instructions.</li>
+            <li>Sign your name in the specified area using a pen or stylus.</li>
+          </ul>
+        </li>
+        <li>
+          <strong>Upload All the Details from Steps 1 & 2:</strong>
+          <ul>
+            <li>Access the designated upload area or platform.</li>
+                    <li>Select the option to upload the scanned details from Step 1, including the base URL barcode and Person's QR code information.</li>
+            <li>Follow the prompts to upload the scanned details and any additional required information.</li>
+          </ul>
+        </li>
+      </ol>
+    </div>
+
+    <button class="btn btn-primary mb-4">Start Here</button>
+
+</div>
+
+    
