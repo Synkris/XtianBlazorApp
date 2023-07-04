@@ -24,3 +24,13 @@ function getImageData(element) {
     var saveImage = element.toDataURL();
     return saveImage;
 }
+
+window.blazorLocalStorage = {
+    deleteItem: function (key) {
+        debugger;
+        localStorage.removeItem(key);
+    },
+    clear: function () {
+        localStorage.clear();
+    }
+};
