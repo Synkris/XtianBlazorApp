@@ -1,0 +1,359 @@
+﻿@page "/dashboard"
+@inject IJSRuntime JsRuntime
+@inject NavigationManager NavManager
+@inject XtianBlazorApp.Shared.ViewModels.StateContainer stateContainer
+@inject IConnectionStatusDetectorService ConnectionStatus
+@implements IDisposable
+
+@using Blazor.ConnectionStatusDetector
+@using BlazorBarcodeScanner.ZXing.JS;
+@using System.Text.Json;
+@using XtianBlazorApp.Client.Helpers;
+@using XtianBlazorApp.Shared.ViewModels;
+@using System.Text;
+@using System.Security.Cryptography;
+@using System.Net.Http.Headers;
+@using Newtonsoft.Json;
+
+
+<PageTitle>Dashboard</PageTitle>
+
+<div class="imgWrapper">
+    <img src="neon-logo-logo-google.jpg" width="100" height="200" class="card-img-top" alt="Logo" />
+</div>
+
+<br>
+<br>
+
+<div class="container">
+    <div class="row">
+
+        <div class="col-md-4 col-12 col-lg-4 margin-bottom gMarginCardMobile blueBottomCardMobile">
+            <div class="card card-sm rounded blue">
+
+                <div class="circle blue">
+                    <button class="btn btn-light startButtonHandler" onclick="startCamera()">
+                        <span class="oi oi-phone icon-margin3">Scan</span>
+                    </button>
+
+                    <button class="btn btn-light stopButtonHandler" hidden onclick="stopCamera()">
+                        <span class="oi oi-media-stop icon-margin3"></span>Stop
+                    </button>
+                </div>
+
+                <div class="card-body scannerCameraMobile">
+
+                    <BlazorBarcodeScanner.ZXing.JS.BarcodeReader Title=""
+                                                                 StartCameraAutomatically="false"
+                                                                 ShowStart="true"
+                                                                 ShowReset="true"
+                                                                 ShowToggleTorch="false"
+                                                                 ShowVideoDeviceList="false"
+                                                                 VideoWidth="400"
+                                                                 VideoHeight="200"
+                                                                 ShowResult="false"
+                                                                 OnBarcodeReceived="LocalReceivedBarcodeText" />
+                </div>
+
+                <div class="circle-down blue">
+                    <button class="btn btn-light badge badge-pill text-color-design" @onclick="RemoveUserDataFromLocalStorageAndReload">
+                        <span class="oi oi-trash"></span>
+                    </button>
+                </div>
+
+                <div class="alert alert-secondary blue blueNotificationSpace whiteWord @scannerHide">
+                    <span class="oi oi-circle-check me-2" aria-hidden="true"></span>
+                    <strong class="mb-3 whiteWord">@finalScannedResult</strong>
+                    <br />
+                </div>
+
+            </div>
+        </div>
+
+        <div class="col-md-4 col-12 col-lg-4 margin-bottom gMarginCardMobile">
+            <div class="card card-sm rounded yellow">
+                <div class="col-12 cardBody">
+
+
+                    <div class="circle yellow">
+                        <a href="PersonalForm" class="btn btn-light">
+                            <span class="oi oi-pencil icon-margin3"></span>Sign
+                        </a>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="col-sm-6 col-md-3">
+                            <label>Signed:</label><br />
+                            <img src="@stateContainer?.SignatureApproved?.Signature">
+                        </div>
+                    </div>
+
+                    <div class="circle-down yellow">
+                        <button class="btn btn-light badge badge-pill text-color-design" @onclick="RemoveSignatureFromLocalStorageAndReload">
+                            <span class="oi oi-trash"></span>
+                        </button>
+                    </div>
+                </div>
+
+                @if (stateContainer?.SignatureApproved?.SignatureSaved == true)
+                {
+                    <div class="alert alert-secondary col-12 yellow notificationSpace">
+                        <span class="oi oi-circle-check me-2" aria-hidden="true"></span>
+                        <strong class="mb-3 whiteWord">Signature Captured successfully</strong>
+                        <br />
+                    </div>
+                }
+
+            </div>
+        </div>
+
+        <div class="col-md-4 col-12 col-lg-4 margin-bottom gMarginCardMobile greenBottomCardMobile">
+            <div class="card card-sm rounded green">
+                <div class="col-12 cardBody">
+                    <div class="col-12 cardBody">
+
+                        <div class="circle green">
+                            <button class="btn btn-light" @onclick=OfflineSave>
+                                <span class="oi oi-hard-drive icon-margin2"></span>Save as Draft
+                            </button>
+                        </div>
+
+                        <div class="card-body">
+                            <br>
+                            <br>
+                            <h6 class="card-title text-white">
+                                <br />
+                                Click the button above to save your details & signature as draft
+                            </h6>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-secondary col-12 green notificationSpace @uploadHide">
+                    <span class="oi oi-circle-check me-2" aria-hidden="true"></span>
+                    <strong class="mb-3 whiteWord"> Details Uploaded Successfully</strong>
+                    <br>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+@code
+{
+
+    private string localBarcodeText = string.Empty;
+    private string url = string.Empty;
+    private string localUrl = string.Empty;
+    private string uatUrl = string.Empty;
+    private string productionUrl = string.Empty;
+    public string finalScannedResult = string.Empty;
+    private string scannerHide = "d-none";
+    public string signHide = "d-none";
+    private string uploadHide = "d-none";
+    [Parameter]
+    public RenderFragment? Online { get; set; }
+
+    [Parameter]
+    public RenderFragment? Offline { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userPrimaryData = await JsRuntime.InvokeAsync<string>("getStoreData", "userData").ConfigureAwait(false);
+        stateContainer.SignatureApproved = new SignatureApproved();
+        if (userPrimaryData != null)
+        {
+            var userData = JsonConvert.DeserializeObject<UserData>(userPrimaryData);
+            if (userData != null)
+            {
+                var detaineePersonName = " Current Detained Person Scanned is " + userData.M;
+                finalScannedResult = detaineePersonName;
+                scannerHide = string.Empty;
+            }
+        }
+        var consentFormFullDetails = await JsRuntime.InvokeAsync<string>("getStoreData", "consentForm").ConfigureAwait(false);
+        if (consentFormFullDetails != null)
+        {
+            stateContainer.SignatureApproved.SignatureSaved = true;
+        }
+    }
+
+    private async void LocalReceivedBarcodeText(BarcodeReceivedEventArgs args)
+    {
+        this.localBarcodeText = args.BarcodeText;
+        StateHasChanged();
+        var result = await SaveUserDataAndBaseUrlToLocalStorage().ConfigureAwait(false);
+        if (result != string.Empty && result != null)
+        {
+            finalScannedResult = result;
+            scannerHide = string.Empty;
+        }
+    }
+
+    private async Task<string> SaveUserDataAndBaseUrlToLocalStorage()
+    {
+        var detaineeName = string.Empty;
+        var baseUrlCategory = string.Empty;
+        var baseUrlData = JsonConvert.DeserializeObject<UploadUrl>(localBarcodeText);
+        if (baseUrlData != null && baseUrlData.URL_PRODUCTION == string.Empty && baseUrlData.URL_LOCAL == string.Empty && baseUrlData.URL_UAT == string.Empty)
+        {
+            var data = JsonConvert.DeserializeObject<UserData>(localBarcodeText);
+            if (data != null && data.A != null)
+            {
+                var dataObject = new
+                {
+                    key = "userData",
+                    value = localBarcodeText
+                };
+                await JsRuntime.InvokeVoidAsync("saveToLocalStorage", dataObject).ConfigureAwait(false);
+                await JsRuntime.InvokeVoidAsync("refreshComponent").ConfigureAwait(false);
+                detaineeName = data.M;
+            }
+            detaineeName = " Current Detained Person Scanned is " + detaineeName;
+            return detaineeName;
+        }
+        else
+        {
+            if (baseUrlData.URL_PRODUCTION != null && baseUrlData.URL_PRODUCTION != string.Empty)
+            {
+                productionUrl = baseUrlData.URL_PRODUCTION;
+                url = productionUrl + "signatures";
+                baseUrlCategory = " Base url set to PRODUCTION successfully ";
+            }
+            else if (baseUrlData.URL_LOCAL != null && baseUrlData.URL_LOCAL != string.Empty)
+            {
+                localUrl = "http://localhost:63813/";// baseUrlData.URL_LOCAL;
+                url = localUrl + "signatures";
+                baseUrlCategory = " Base url set to LOCAL successfully ";
+            }
+            else if (baseUrlData.URL_UAT != null && baseUrlData.URL_UAT != string.Empty)
+            {
+                uatUrl = baseUrlData.URL_UAT;
+                url = uatUrl + "signatures";
+                baseUrlCategory = " Base url set to UAT successfully ";
+            }
+            else
+            {
+                url = baseUrlData.URL_PRODUCTION + "signatures";
+                baseUrlCategory = " Base url set to production successfully ";
+            }
+
+            var dataObject = new
+            {
+                key = "baseUrl",
+                value = url
+            };
+            await JsRuntime.InvokeVoidAsync("saveToLocalStorage", dataObject).ConfigureAwait(false);
+            return baseUrlCategory;
+        }
+    }
+
+    private async Task RemoveUserDataFromLocalStorageAndReload()
+    {
+        await JsRuntime.InvokeVoidAsync("removeFromLocalStorage", "userData");
+
+        await JsRuntime.InvokeVoidAsync("refreshComponent");
+    }
+
+    private async Task RemoveSignatureFromLocalStorageAndReload()
+    {
+        await JsRuntime.InvokeVoidAsync("removeFromLocalStorage", "consentForm");
+
+        await JsRuntime.InvokeVoidAsync("refreshComponent");
+    }
+
+    protected override void OnInitialized() => ConnectionStatus.ConnectionStatusChanged += (_, _) => StateHasChanged();
+
+    public void Dispose() => ConnectionStatus.ConnectionStatusChanged -= (_, _) => StateHasChanged();
+
+    public async void OfflineSave()
+    {
+        try
+        {
+            var savedOfflineDetailsList = new List<UploadModel>();
+            var offlineDetails = await JsRuntime.InvokeAsync<string>("getStoreData", "draftDetentionDetails").ConfigureAwait(false);
+            if (offlineDetails != null)
+            {
+                savedOfflineDetailsList = JsonConvert.DeserializeObject<List<UploadModel>>(offlineDetails);
+            }
+
+            var data = new UploadModel();
+            var consentFormFullDetails = await JsRuntime.InvokeAsync<string>("getStoreData", "consentForm").ConfigureAwait(false);
+
+            if (consentFormFullDetails != null)
+            {
+                var userData = JsonConvert.DeserializeObject<UploadModel>(consentFormFullDetails);
+                if (userData != null)
+                {
+                    data.UserId = userData.UserId;
+                    data.Guid = userData.Guid;
+                    data.DetentionId = userData.DetentionId;
+                    data.DetentionLogId = userData.DetentionLogId;
+                    data.SignatureName = userData.SignatureName ?? "";
+                    data.SignatureType = userData.SignatureType;
+                    data.AgePreference = userData.AgePreference;
+                    data.ImageData = userData.ImageData;
+                    data.Consent16AndOlderDPMedicalExam = userData.Consent16AndOlderDPMedicalExam;
+                    data.Consent16AndOlderDPForensicSampling = userData.Consent16AndOlderDPForensicSampling;
+                    data.Consent16AndOlderBodyDiagram = userData.Consent16AndOlderBodyDiagram;
+                    data.Consent16AndOlderStatementCareRecord = userData.Consent16AndOlderStatementCareRecord;
+                    data.Consent16AndOlderContatingGp = userData.Consent16AndOlderContatingGp;
+                    data.Consent16AndOlderRelevantServiceAndReferral = userData.Consent16AndOlderRelevantServiceAndReferral;
+                    data.Consent16AndOlderRelevantServiceAndReferralTextBox = userData.Consent16AndOlderRelevantServiceAndReferralTextBox;
+                    data.Consent16AndOlderAccessingSummaryRecord = userData.Consent16AndOlderAccessingSummaryRecord;
+                    data.Consent16AndOlderSafeguardingReferral = userData.Consent16AndOlderSafeguardingReferral;
+                    data.Consent16AndOlderDPInfoResearchPlanning = userData.Consent16AndOlderDPInfoResearchPlanning;
+                    data.Consent16AndOlderDPInfoShared = userData.Consent16AndOlderDPInfoShared;
+                    ////UNDER 16 DATA
+                    data.ConsentUnder16DPMedicalExam = userData.ConsentUnder16DPMedicalExam;
+                    data.ConsentUnder16DPForensicSampling = userData.ConsentUnder16DPForensicSampling;
+                    data.ConsentUnder16BodyDiagram = userData.ConsentUnder16BodyDiagram;
+                    data.ConsentUnder16StatementCareRecord = userData.ConsentUnder16StatementCareRecord;
+                    data.ConsentUnder16ContatingGp = userData.ConsentUnder16ContatingGp;
+                    data.ConsentUnder16RelevantServiceAndReferral = userData.ConsentUnder16RelevantServiceAndReferral;
+                    data.ConsentUnder16RelevantServiceAndReferralTextBox = userData.ConsentUnder16RelevantServiceAndReferralTextBox;
+                    data.ConsentUnder16AccessingSummaryRecord = userData.ConsentUnder16AccessingSummaryRecord;
+                    data.ConsentUnder16SafeguardingReferral = userData.ConsentUnder16SafeguardingReferral;
+                    data.ConsentUnder16DPInfoResearchPlanning = userData.ConsentUnder16DPInfoResearchPlanning;
+                    data.ConsentUnder16DPInfoShared = userData.ConsentUnder16DPInfoShared;
+
+                    savedOfflineDetailsList?.Add(data);
+                    var serializedListDetails = JsonConvert.SerializeObject(savedOfflineDetailsList);
+                    if (serializedListDetails != null)
+                    {
+                        var dataObject = new
+                        {
+                            key = "draftDetentionDetails",
+                            value = serializedListDetails
+                        };
+
+                        await JsRuntime.InvokeVoidAsync("saveToLocalStorage", dataObject).ConfigureAwait(false);
+                        await JsRuntime.InvokeVoidAsync("refreshComponent").ConfigureAwait(false);
+                        await JsRuntime.InvokeVoidAsync("removeFromLocalStorage", "userData");
+                        await JsRuntime.InvokeVoidAsync("removeFromLocalStorage", "consentForm");
+
+
+                        //await JsRuntime.InvokeVoidAsync("Swal.fire", "Succeded", "Draft Sucessfully Saved", "success");
+                        return;
+                    }
+                }
+            }
+            // await JsRuntime.InvokeVoidAsync("Swal.fire", "Error", "Draft couldn't be Saved, please retry", "error");
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+
+}
+
+

@@ -2,11 +2,13 @@
 using Newtonsoft.Json;
 using System.Security.Cryptography;
 using System.Text;
-using XtianBlazorApp.Server.Helper;
+using XtianBlazorApp.Server.Helpers;
 using XtianBlazorApp.Shared.ViewModels;
 
 namespace XtianBlazorApp.Server.Controllers
 {
+    [Route("[Controller]")]
+    [ApiController]
     public class UploadController : ControllerBase
     {
         private readonly ISignatureUploadHelper _signatureUploadHelper;

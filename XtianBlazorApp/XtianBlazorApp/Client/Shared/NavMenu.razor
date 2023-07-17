@@ -1,4 +1,29 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@inject IJSRuntime JsRuntime
+
+@using Newtonsoft.Json;
+@using XtianBlazorApp.Shared.ViewModels;
+
+<style>
+
+    .sideBarNotification {
+        position: relative;
+        display: inline-block;
+    }
+
+    .sidebarNotification-badge {
+        position: absolute;
+        right: 15px;
+        background-color: floralwhite;
+        color: #353037;
+        border-radius: 50px;
+        padding: 0px 15px;
+        font-weight: bolder;
+        height: 42px;
+    }
+
+</style>
+
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">XtianBlazorApp</a>
         <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
@@ -9,6 +34,7 @@
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
+
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
                 <span class="oi oi-home" aria-hidden="true"></span> Home
@@ -16,33 +42,36 @@
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
+            <NavLink class="nav-link" href="dashboard">
                 <span class="oi oi-phone" aria-hidden="true"></span> Scan & Upload
             </NavLink>
         </div>
 
-@*        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
+        <div class="nav-item px-3">
+            <NavLink class="nav-link sideBarNotification" href="drafts">
+                <span class="oi oi-hard-drive" aria-hidden="true"></span> Drafts
+                @if (totalDrafts != 0)
+                {
+                    <div class="sidebarNotification-badge">@totalDrafts</div>
+                }
             </NavLink>
         </div>
 
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="signature">
-                <span class="oi oi-pencil" aria-hidden="true"></span> Sign Here
+            <NavLink class="nav-link" href="settings">
+                <span class="oi oi-cog" aria-hidden="true"></span> Settings
             </NavLink>
         </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="scanner">
-                <span class="oi oi-phone" aria-hidden="true"></span> Scan Qr Code
-            </NavLink>
-        </div>*@
+
     </nav>
 </div>
 
-@code {
+@code
+{
     private bool collapseNavMenu = true;
+
+    private int totalDrafts = 0;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
@@ -50,4 +79,26 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var offlineDetails = await JsRuntime.InvokeAsync<string>("getStoreData", "draftDetentionDetails").ConfigureAwait(false);
+            if (offlineDetails != null)
+            {
+                var allDrafts = JsonConvert.DeserializeObject<List<UploadModel>>(offlineDetails);
+                if (allDrafts != null && allDrafts.Count() != 0)
+                {
+                    totalDrafts = allDrafts.Count();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+
 }

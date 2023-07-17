@@ -2,7 +2,7 @@
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
 
-namespace XtianBlazorApp.Client.Helper
+namespace XtianBlazorApp.Client.Helpers
 {
     public interface ISignatureUploadHelper
     {
