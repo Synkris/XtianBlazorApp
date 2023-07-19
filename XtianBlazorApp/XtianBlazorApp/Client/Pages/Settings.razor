@@ -1,0 +1,76 @@
+﻿@page "/settings"
+@inject IJSRuntime JsRuntime
+@inject NavigationManager navigationManager
+
+@using System.Text.Json;
+@using XtianBlazorApp.Client.Helpers;
+@using XtianBlazorApp.Shared.ViewModels;
+@using System.Text;
+@using System.Security.Cryptography;
+@using System.Net.Http.Headers;
+@using Newtonsoft.Json;
+
+
+<style>
+
+    .mainCard {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-title {
+        font-family: fantasy;
+    }
+</style>
+
+<div class="imgWrapper">
+    <img src="neon-logo-logo-google.jpg" width="100" height="200" class="card-img-top" alt="Logo" />
+</div>
+
+
+<div class="card mainCard shadow-lg">
+
+    <div class="card-body">
+
+        <div class="alert alert-success text-center @versionUpdateNotifier">
+            <p>Your version is up to date!!!</p>
+        </div>
+
+        <h5 class="card-title text-center">Version <strong> <i> 2.0.11 </i></strong> &nbsp; is  available</h5>
+        <div class="card-text">
+            <p>
+                Click the button below to update to the latest version
+            </p>
+        </div>
+    </div>
+
+    <button class="btn btn-success mb-4" @onclick=UpdateAppVersion>
+        <span class="oi oi-expand-up icon-margin2"></span> Update
+    </button>
+
+</div>
+
+@code
+{
+    private string versionUpdateNotifier = "d-none";
+
+    private async Task UpdateAppVersion()
+    {
+        versionUpdateNotifier = string.Empty;
+
+        // Delay the execution for 5 seconds
+        await Task.Delay(5000);
+
+        // Perform the main funtion here
+        PerformHardRefresh();
+    }
+
+
+    private void PerformHardRefresh()
+    {
+        navigationManager.NavigateTo(navigationManager.BaseUri, forceLoad: true);
+    }
+
+
+}

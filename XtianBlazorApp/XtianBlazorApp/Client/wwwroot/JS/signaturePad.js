@@ -25,12 +25,21 @@ function getImageData(element) {
     return saveImage;
 }
 
-window.blazorLocalStorage = {
-    deleteItem: function (key) {
-        debugger;
-        localStorage.removeItem(key);
-    },
-    clear: function () {
-        localStorage.clear();
-    }
+function saveToLocalStorage(obj) {
+    var key = obj.key;
+    var value = obj.value;
+    localStorage.setItem(key, value);
+}
+
+function getStoreData(key) {
+    var data = localStorage.getItem(key);
+    return data;
+}
+
+function removeFromLocalStorage(key) {
+    localStorage.removeItem(key);
+};
+
+function refreshComponent() {
+    window.location.reload();
 };

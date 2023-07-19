@@ -12,5 +12,6 @@ namespace XtianBlazorApp.Shared.ViewModels
         {
             get; set;
         }
+        public List<UploadModel>? List { get; set; }
     }
 }

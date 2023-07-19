@@ -1,0 +1,246 @@
+﻿@page "/drafts"
+@inject IJSRuntime JsRuntime
+@inject XtianBlazorApp.Shared.ViewModels.StateContainer stateContainer
+
+@using System.Text.Json;
+@using XtianBlazorApp.Client.Helpers;
+@using XtianBlazorApp.Shared.ViewModels;
+@using System.Text;
+@using System.Security.Cryptography;
+@using System.Net.Http.Headers;
+@using Newtonsoft.Json;
+
+
+<style>
+    .mainCard {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-title {
+        font-family: fantasy;
+    }
+</style>
+
+
+
+<div class="imgWrapper">
+    <img src="neon-logo-logo-google.jpg" width="100" height="200" class="card-img-top" alt="Logo" />
+</div>
+
+<div class="card mainCard shadow-lg">
+
+
+    @if (totalDrafts != 0)
+    {
+        <div class="card-body">
+            <h5 class="card-title text-center">Upload & Sync Drafts</h5>
+            <div class="card-text">
+                <p>
+                    Now that you are online, please upload your drafts by clicking the button below
+                </p>
+            </div>
+        </div>
+
+        <div class="col-12 text-center pt-3 ">
+            <div class="row">
+
+                <div class="my-2 col-8 mx-auto">
+                    <button class="btn btn-success mb-4" @onclick=UploadDraft>
+                        <span class="oi oi-rss icon-margin2"></span> Upload Draft (@totalDrafts)
+                    </button>
+
+                    <button class="btn btn-success mb-4" @onclick=OpenModal>
+                        <span class="oi oi-delete icon-margin2"></span> Clear Drafts
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+
+        @if (stateContainer?.List != null && stateContainer?.List.Count() != 0)
+        {
+            <hr />
+            <div>
+                <div class="table-responsive">
+                    <h4 class="text-center"> Detainee's Saved as Draft:  </h4>
+                    <table class="table" id="myTable">
+                        <thead>
+                            <tr>
+                                <th><strong>S/N</strong></th>
+                                <th><strong>Deainee's Name </strong></th>
+                                <th><strong> Age Preference</strong></th>
+                                <th><strong> Signature Assigned </strong></th>
+                                <th><strong> Remove </strong></th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var data in stateContainer?.List)
+                            {
+                                <tr>
+                                    <td></td>
+                                    <td>@data?.SignatureName</td>
+                                    <td>@data?.AgePreference</td>
+                                    <td>
+                                        <img src="@data?.ImageData" width="60" height="40" class="" alt="Logo" />
+                                    </td>
+
+                                    <td>
+                                        <button class="btn btn-light badge badge-pill text-color-design" @onclick="(() => RemoveDetaineeFromList(data.DetentionId))">
+                                            <span class="oi oi-trash"></span>
+                                        </button>
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        }
+
+    }
+    else
+    {
+        <div class="card-body">
+            <h5 class="card-title text-center">Upload & Sync Drafts</h5>
+            <div class="card-text">
+                <p>
+                    No drafts found, check back when you upload a draft.
+                </p>
+            </div>
+        </div>
+        <a href="" class="btn btn-primary mb-4">Home</a>
+    }
+
+</div>
+
+
+<ModalComponent @ref="modalRef" IsVisible="isModalVisible" Title="Reload">
+    <p>Are you sure you want to clear all drafts,click <b>Yes</b> to proceed</p>
+</ModalComponent>
+
+@code
+{
+    private int totalDrafts = 0;
+    private bool isModalVisible = false;
+    private ModalComponent? modalRef;
+
+
+    private async Task UploadDraft()
+    {
+        try
+        {
+            var apiKey = "qm8nLvw92J89uZBazE9FmHfCjCVaOhqaa6wmr661FhduEom5QZyqmmL3dSTsCkBHJO8eiQ9oO81j8WopzYaSM9jZJhy3Aptt4sLhnEbWl7bRujqbwHTWCzsdBaZmpimFqmjYuE8RDJjKYnIJFkx0oH3U3sbBELDw8tvDzDsTGgnCdoQ7SZOYlhP8xHk2E6hK31xgb0flhBo2HfnQUPo75oRAlyICSg9E42DCQ3gy3p1CKVxa47W4bv7IR3pdr8pC";
+            var offlineDetails = await JsRuntime.InvokeAsync<string>("getStoreData", "draftDetentionDetails").ConfigureAwait(false);
+            var baseUrl = "https://mhlmobile2test.e-3c.co.uk/signatures";// await JsRuntime.InvokeAsync<string>("getStoreData", "baseUrl").ConfigureAwait(false);
+            var allDrafts = new List<UploadModel>();
+
+
+            if (offlineDetails != null)
+            {
+                allDrafts = JsonConvert.DeserializeObject<List<UploadModel>>(offlineDetails);
+                if (allDrafts != null && allDrafts.Count() != 0)
+                {
+                    foreach (var data in allDrafts)
+                    {
+
+                        if (data != null)
+                        {
+                            using (var client = new HttpClient())
+                            {
+                                byte[] bytes = Encoding.UTF8.GetBytes(apiKey + data.UserId);
+                                using (SHA512 sha512 = SHA512.Create())
+                                {
+                                    byte[] hashBytes = sha512.ComputeHash(bytes);
+                                    string hash = BitConverter.ToString(hashBytes).Replace("-", string.Empty);
+                                    var serializedData = JsonConvert.SerializeObject(data);
+                                    HttpContent content = new StringContent(serializedData, Encoding.UTF8, "application/json");
+                                    client.BaseAddress = new Uri(baseUrl);
+                                    client.DefaultRequestHeaders.Add("ApiKey", apiKey);
+                                    client.DefaultRequestHeaders.Add("Hash", hash);
+                                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                                    var response = await client.PostAsync("", content).ConfigureAwait(false);
+                                    if (response.IsSuccessStatusCode)
+                                    {
+                                        continue;
+                                        // DO SOMETHING HERE
+                                    }
+                                }
+                            }
+                        }
+
+                        // await JsRuntime.InvokeVoidAsync("Swal.fire", "Uploaded", "All Draft Uploaded Sucessfully", "success");
+                    }
+                    await ClearDraftList();
+
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    private async Task ClearDraftList()
+    {
+        await JsRuntime.InvokeVoidAsync("removeFromLocalStorage", "draftDetentionDetails");
+        await JsRuntime.InvokeVoidAsync("removeFromLocalStorage", "consentForm");
+        await JsRuntime.InvokeVoidAsync("removeFromLocalStorage", "userData");
+        await JsRuntime.InvokeVoidAsync("refreshComponent");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var offlineDetails = await JsRuntime.InvokeAsync<string>("getStoreData", "draftDetentionDetails").ConfigureAwait(false);
+            if (offlineDetails != null)
+            {
+                var allDrafts = JsonConvert.DeserializeObject<List<UploadModel>>(offlineDetails);
+                if (allDrafts != null && allDrafts.Count() != 0)
+                {
+                    totalDrafts = allDrafts.Count();
+                    stateContainer.List = allDrafts;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
+
+    private async Task RemoveDetaineeFromList(string selectedDetaineeId)
+    {
+        if (selectedDetaineeId != null)
+        {
+            var offlineDetails = await JsRuntime.InvokeAsync<string>("getStoreData", "draftDetentionDetails").ConfigureAwait(false);
+            if (offlineDetails != null)
+            {
+                var allDrafts = JsonConvert.DeserializeObject<List<UploadModel>>(offlineDetails);
+                if (allDrafts != null && allDrafts.Count() != 0)
+                {
+                    var detailsToBeRemoved = allDrafts.Where(x => x.DetentionId == selectedDetaineeId).FirstOrDefault();
+                    if (detailsToBeRemoved != null)
+                    {
+                        allDrafts.Remove(detailsToBeRemoved);
+                        await JsRuntime.InvokeVoidAsync("refreshComponent");
+                    }
+                }
+            }
+        }
+    }
+
+    private void OpenModal()
+    {
+        isModalVisible = true;
+    }
+
+}
